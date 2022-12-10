@@ -1,16 +1,10 @@
-import discord
-import mysql.connector as mysql
+import string
 
-dbc = mysql.connect(
-    host = "delphi",
-    user = "delphi",
-    password = "delphi",
-    database = "delphi"
+l = string.ascii_lowercase
 
-)
+print (len(l))
+print(l)
 
-cur = dbc.cursor()
-
-cur.execute("select * from single")
-
-print(cur.fetchall())
+for x in range(len(l)):
+    print(x)
+    print(l[x])
