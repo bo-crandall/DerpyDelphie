@@ -130,3 +130,5 @@ dmypy.json
 token.ini
 lovecraft-sentences .txt
 lovecraft.txt
+lovecraft-ingest.py
+lovecraft-sentences.txt
