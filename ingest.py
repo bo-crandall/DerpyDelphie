@@ -2,6 +2,8 @@ import discord
 import mysql.connector as mysql
 import re
 import string
+import random
+import time
 
 optoutid = 1051237774130417684
 
@@ -12,8 +14,6 @@ dbc = mysql.connect(
     database = "delphi"
 
 )
-
-sql = dbc.cursor()
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -35,13 +35,15 @@ async def on_message(message):
 
     if message.content.startswith('$ping'):
         await message.channel.send('Pong!')
-
     if message.content.startswith('$scan'):
+        sql = dbc.cursor()
         guild = message.guild
         channel = message.channel
         for i in guild.text_channels:
             #await i.send("#I am scanning this channel")
             messages = 0
+            sql = dbc.cursor()
+            dbc.start_transaction()
             async for m in i.history(limit=None):
                 messages += 1
                 if messages % 10 == 0:
@@ -81,15 +83,45 @@ async def on_message(message):
                         newweight = dbresult[0][0] + 1
                         #print("New Weight:",newweight)
                         sql.execute("update single set weight = %s where first = %s and next = %s",(newweight, first, next))
-
-                dbc.commit()
+            dbc.commit()
+            sql.close()
     if message.content.startswith("$emote"):
         await message.channel.send("<:rooThink1:580614815408586762>")
-
+    if message.content.startswith("$ryleh"):
+        resp = buildResponse("#")
+        await message.channel.send(resp)
                         
 
 
 
+def buildResponse(word):
+    random.seed(time.time())
+    db = dbc.cursor()
+    getWeight = "select sum(weight) from single where first = %s"
+    getWords = "select next,weight from single where first = %s"
+    #steps to find a word: get total weight, select a random number, fetch word list, interate through, recusively select next work
+    db.execute(getWeight,word)
+    sumWeight = db.fetchall()
+    if len(sumWeight) == 0:
+        db.close()
+        return ""
+    selection = random.randint(1,sumWeight)
+    db.execute(getWords,word)
+    words = db.fetchall()
+    if len(words) == 0:
+        db.close()
+        return ""
+    db.close()
+    for i in words:
+        weight = i[1]
+        selection -= weight
+        if selection > 0:
+            continue
+        if i[0] == "!":
+            return ""
+        else:
+            return i[0] + buildResponse(i[0])
+    
 
 
 client.run(token)
