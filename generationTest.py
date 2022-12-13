@@ -16,8 +16,8 @@ def buildResponse(word):
     resp = ""
     random.seed(time.time())
     db = dbc.cursor()
-    getWeight = "select sum(weight) from single where first = '{}' and weight > 0".format(word)
-    getWords = "select next,weight from single where first = '{}' and weight > 0 order by weight desc".format(word)
+    getWeight = "select sum(weight) from single where first = '{}' and weight > 1".format(word)
+    getWords = "select next,weight from single where first = '{}' and weight > 1 order by weight desc".format(word)
 
     #steps to find a word: get total weight, select a random number, fetch word list, interate through, recusively select next work
     db.execute(getWeight)
